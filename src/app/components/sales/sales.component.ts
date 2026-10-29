@@ -15,6 +15,10 @@ export class SalesComponent implements OnInit {
 
   constructor(private saleService: SaleService, private notify: NotifyService) {}
 
+  trackById(_: number, item: Sale): number {
+    return item.id;
+  }
+
   ngOnInit(): void {
     this.load();
   }

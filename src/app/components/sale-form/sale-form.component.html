@@ -14,7 +14,7 @@
           </thead>
           <tbody>
             <tr *ngIf="loading"><td colspan="4" class="text-center text-secondary">Cargando...</td></tr>
-            <tr *ngFor="let p of products">
+            <tr *ngFor="let p of products; trackBy: trackById">
               <td>{{ p.name }}</td>
               <td class="text-end">{{ p.price | number:'1.2-2' }}</td>
               <td class="text-end">{{ p.stock | number }}</td>
@@ -44,10 +44,10 @@
           </thead>
           <tbody>
             <tr *ngIf="!cart.length"><td colspan="5" class="text-center text-secondary">Agrega productos a la venta</td></tr>
-            <tr *ngFor="let l of cart">
+            <tr *ngFor="let l of cart; trackBy: trackById">
               <td>{{ l.product.name }}<div class="small text-secondary">{{ l.product.price | number:'1.2-2' }} c/u</div></td>
-              <td><input type="number" class="form-control form-control-sm" min="1" step="1" [max]="l.product.stock" [(ngModel)]="l.quantity" /></td>
-              <td><input type="number" class="form-control form-control-sm" min="0" [max]="maxDiscount" step="1" [(ngModel)]="l.discount_percent" /></td>
+              <td><input type="number" class="form-control form-control-sm" name="quantity" aria-label="Cantidad" min="1" step="1" [max]="l.product.stock" [ngModel]="l.quantity" (ngModelChange)="l.quantity = $event; recalculate()" /></td>
+              <td><input type="number" class="form-control form-control-sm" name="discount" aria-label="Descuento porcentual" min="0" [max]="maxDiscount" step="1" [ngModel]="l.discount_percent" (ngModelChange)="l.discount_percent = $event; recalculate()" /></td>
               <td class="text-end">{{ lineTotal(l) | number:'1.2-2' }}</td>
               <td class="text-end">
                 <button type="button" class="btn btn-link p-0 text-danger" title="Quitar" (click)="remove(l)"><i class="ri-close-line"></i></button>

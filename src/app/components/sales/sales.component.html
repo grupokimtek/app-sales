@@ -19,7 +19,7 @@
       <tbody>
         <tr *ngIf="loading"><td colspan="6" class="text-center text-secondary">Cargando...</td></tr>
         <tr *ngIf="!loading && !sales.length"><td colspan="6" class="text-center text-secondary">Aún no hay ventas registradas</td></tr>
-        <tr *ngFor="let s of sales">
+        <tr *ngFor="let s of sales; trackBy: trackById">
           <td>{{ s.id }}</td>
           <td>{{ s.created_at }}</td>
           <td>

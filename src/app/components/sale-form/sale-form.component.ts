@@ -29,6 +29,10 @@ export class SaleFormComponent implements OnInit {
   loading = true;
   saving = false;
 
+  total = 0;
+  totalDiscount = 0;
+  cartError: string | null = 'Agrega al menos un producto.';
+
   constructor(
     private productService: ProductService,
     private saleService: SaleService,
@@ -56,11 +60,24 @@ export class SaleFormComponent implements OnInit {
   add(product: Product): void {
     if (!this.inCart(product)) {
       this.cart.push({ product, quantity: 1, discount_percent: 0 });
+      this.recalculate();
     }
   }
 
   remove(line: CartLine): void {
     this.cart = this.cart.filter((l) => l !== line);
+    this.recalculate();
+  }
+
+  trackById(_: number, item: Product | CartLine): number {
+    return 'product' in item ? item.product.id : item.id;
+  }
+
+  /** Se ejecuta solo cuando cambia el carrito, no en cada ciclo de detección. */
+  recalculate(): void {
+    this.totalDiscount = this.cart.reduce((sum, l) => sum + this.discountAmount(l), 0);
+    this.total = this.cart.reduce((sum, l) => sum + this.lineTotal(l), 0);
+    this.cartError = this.validateCart();
   }
 
   subtotal(line: CartLine): number {
@@ -75,16 +92,8 @@ export class SaleFormComponent implements OnInit {
     return this.subtotal(line) - this.discountAmount(line);
   }
 
-  get totalDiscount(): number {
-    return this.cart.reduce((sum, l) => sum + this.discountAmount(l), 0);
-  }
-
-  get total(): number {
-    return this.cart.reduce((sum, l) => sum + this.lineTotal(l), 0);
-  }
-
   /** Devuelve el primer problema del carrito o null si es válido. */
-  get cartError(): string | null {
+  private validateCart(): string | null {
     if (!this.cart.length) {
       return 'Agrega al menos un producto.';
     }

@@ -15,6 +15,10 @@ export class ProductsComponent implements OnInit {
 
   constructor(private productService: ProductService, private notify: NotifyService) {}
 
+  trackById(_: number, item: Product): number {
+    return item.id;
+  }
+
   ngOnInit(): void {
     this.productService.getAll().subscribe({
       next: (products) => {

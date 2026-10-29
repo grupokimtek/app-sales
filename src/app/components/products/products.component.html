@@ -17,7 +17,7 @@
       <tbody>
         <tr *ngIf="loading"><td colspan="4" class="text-center text-secondary">Cargando...</td></tr>
         <tr *ngIf="!loading && !products.length"><td colspan="4" class="text-center text-secondary">No hay productos</td></tr>
-        <tr *ngFor="let p of products">
+        <tr *ngFor="let p of products; trackBy: trackById">
           <td>{{ p.id }}</td>
           <td>{{ p.name }}</td>
           <td class="text-end">{{ p.price | number:'1.2-2' }}</td>
