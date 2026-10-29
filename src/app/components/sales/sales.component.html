@@ -1,0 +1,47 @@
+<section class="py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="section-title">Ventas</h2>
+    <a class="btn btn-primary" routerLink="/ventas/nueva"><i class="ri-add-line me-1"></i>Nueva venta</a>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Fecha</th>
+          <th>Productos vendidos</th>
+          <th class="text-end">Descuento</th>
+          <th class="text-end">Total</th>
+          <th class="table-head-action text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="loading"><td colspan="6" class="text-center text-secondary">Cargando...</td></tr>
+        <tr *ngIf="!loading && !sales.length"><td colspan="6" class="text-center text-secondary">Aún no hay ventas registradas</td></tr>
+        <tr *ngFor="let s of sales">
+          <td>{{ s.id }}</td>
+          <td>{{ s.created_at }}</td>
+          <td>
+            <div *ngFor="let d of s.details" class="detail-line">
+              {{ d.quantity }} × {{ d.product }}
+              <span class="text-secondary">— {{ d.subtotal | number:'1.2-2' }}</span>
+              <span *ngIf="d.discount_percent > 0" class="badge text-bg-success ms-1">
+                -{{ d.discount_percent }}% = {{ d.subtotal_with_discount | number:'1.2-2' }}
+              </span>
+            </div>
+          </td>
+          <td class="text-end">{{ s.total_discount | number:'1.2-2' }}</td>
+          <td class="text-end fw-bold">{{ s.total | number:'1.2-2' }}</td>
+          <td class="table-data-action">
+            <div>
+              <button type="button" class="btn btn-link p-0 text-danger" title="Eliminar venta" (click)="remove(s)">
+                <i class="ri-delete-bin-line"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

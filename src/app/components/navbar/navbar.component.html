@@ -8,10 +8,13 @@
     <div class="collapse navbar-collapse" id="navbarToggler">
       <ul class="navbar-nav ms-auto">
         <li class="nav-item me-lg-2">
-          <a class="nav-link" routerLinkActive="active" routerLink="/inicio">Inicio</a>
+          <a class="nav-link" routerLinkActive="active" routerLink="/productos">Productos</a>
+        </li>
+        <li class="nav-item me-lg-2">
+          <a class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" routerLink="/ventas">Ventas</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLinkActive="active" routerLink="/posts">Posts</a>
+          <a class="nav-link" routerLinkActive="active" routerLink="/ventas/nueva">Nueva venta</a>
         </li>
       </ul>
     </div>
