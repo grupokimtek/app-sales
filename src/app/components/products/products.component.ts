@@ -11,6 +11,7 @@ import { ProductService } from '../../services/product.service';
 })
 export class ProductsComponent implements OnInit {
   products: Product[] = [];
+  search = '';
   loading = true;
 
   constructor(private productService: ProductService, private notify: NotifyService) {}

@@ -24,6 +24,7 @@ export class SaleFormComponent implements OnInit {
   private readonly userId = 1;
 
   readonly maxDiscount = MAX_DISCOUNT;
+  search = '';
   products: Product[] = [];
   cart: CartLine[] = [];
   loading = true;

@@ -7,6 +7,10 @@
   <div class="row g-4">
     <div class="col-lg-5">
       <h5 class="section-title mb-2">Productos disponibles</h5>
+      <div class="mb-3">
+          <input type="search" class="form-control" name="search" aria-label="Buscar producto por nombre"
+            placeholder="Buscar producto por nombre..." [(ngModel)]="search" />
+        </div>
       <div class="table-responsive">
         <table class="table align-middle">
           <thead>
@@ -14,7 +18,8 @@
           </thead>
           <tbody>
             <tr *ngIf="loading"><td colspan="4" class="text-center text-secondary">Cargando...</td></tr>
-            <tr *ngFor="let p of products; trackBy: trackById">
+            <tr *ngIf="!loading && !(products | filterByName: search).length"><td colspan="4" class="text-center text-secondary">No se encontraron productos</td></tr>
+            <tr *ngFor="let p of products | filterByName: search; trackBy: trackById">
               <td>{{ p.name }}</td>
               <td class="text-end">{{ p.price | number:'1.2-2' }}</td>
               <td class="text-end">{{ p.stock | number }}</td>

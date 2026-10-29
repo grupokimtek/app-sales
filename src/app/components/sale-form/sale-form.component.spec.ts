@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
 import { environment } from '../../../environments/environment';
 import { Product } from '../../models/product.model';
+import { FilterByNamePipe } from '../../pipes/filter-by-name.pipe';
 import { SaleFormComponent } from './sale-form.component';
 
 describe('SaleFormComponent', () => {
@@ -14,7 +15,7 @@ describe('SaleFormComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, FormsModule, RouterTestingModule],
-      declarations: [SaleFormComponent]
+      declarations: [SaleFormComponent, FilterByNamePipe]
     });
     fixture = TestBed.createComponent(SaleFormComponent);
     component = fixture.componentInstance;

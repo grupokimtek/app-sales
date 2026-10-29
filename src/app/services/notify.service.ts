@@ -2,6 +2,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import * as Toastify from 'toastify-js';
 
+/** Tiempo que permanece visible un aviso antes de cerrarse solo. */
+const TOAST_DURATION_MS = 10000;
+
 @Injectable({ providedIn: 'root' })
 export class NotifyService {
   success(message: string): void {
@@ -23,6 +26,14 @@ export class NotifyService {
   }
 
   private show(text: string, background: string): void {
-    Toastify({ text, duration: 4000, gravity: 'top', position: 'right', style: { background } }).showToast();
+    Toastify({
+      text,
+      duration: TOAST_DURATION_MS,
+      close: true,
+      stopOnFocus: false,
+      gravity: 'top',
+      position: 'right',
+      style: { background }
+    }).showToast();
   }
 }
