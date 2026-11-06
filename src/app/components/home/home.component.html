@@ -1,3 +1,149 @@
-<section class="d-flex align-items-center justify-content-center flex-column text-center">
-  <h1 class="fw-bold mb-3">Bienvenid@ </h1>
+<section class="catalog-page">
+  <header class="catalog-heading">
+    <div>
+      <p class="eyebrow">INVENTARIO / API SALES</p>
+      <h1>{{ currentView === 'catalog' ? 'Productos' : 'Ventas' }}</h1>
+    </div>
+    <div class="inventory-summary" aria-label="Resumen del inventario">
+      <span class="summary-label">PRODUCTOS</span>
+      <strong>{{ products.length | number }}</strong>
+      <span class="summary-divider"></span>
+      <span class="summary-label">UNIDADES</span>
+      <strong>{{ totalUnits | number }}</strong>
+    </div>
+  </header>
+
+  <nav class="section-tabs" aria-label="Secciones del sistema">
+    <button type="button" [class.active]="currentView === 'catalog'" (click)="selectView('catalog')">
+      <i class="ri-store-2-line" aria-hidden="true"></i> Productos
+    </button>
+    <button type="button" [class.active]="currentView === 'sales'" (click)="selectView('sales')">
+      <i class="ri-receipt-line" aria-hidden="true"></i> Ventas <span>{{ sales.length }}</span>
+    </button>
+  </nav>
+
+  <div class="notice" *ngIf="noticeMessage" [class.notice-error]="noticeIsError" role="status" aria-live="polite">
+    {{ noticeMessage }}
+  </div>
+
+  <ng-container *ngIf="currentView === 'catalog'; else salesView">
+    <div class="store-layout">
+      <section class="catalog-main" aria-label="Catálogo de productos">
+        <div class="catalog-toolbar">
+          <label class="search-box">
+            <i class="ri-search-line" aria-hidden="true"></i>
+            <span class="visually-hidden">Buscar productos</span>
+            <input type="search" placeholder="Buscar por nombre..." [value]="searchTerm" (input)="updateSearch($event)">
+          </label>
+          <div class="toolbar-end">
+            <span class="result-count">{{ filteredProducts.length }} resultados</span>
+            <button class="refresh-button" type="button" (click)="loadProducts()" [disabled]="isLoading">
+              <i class="ri-refresh-line" aria-hidden="true"></i>
+              Actualizar
+            </button>
+          </div>
+        </div>
+
+        <div class="loading-state" *ngIf="isLoading" role="status">
+          <span class="loading-mark"></span>
+          Consultando inventario...
+        </div>
+
+        <div class="error-state" *ngIf="!isLoading && errorMessage" role="alert">
+          <div><strong>No se pudo cargar el catálogo</strong><p>{{ errorMessage }}</p></div>
+          <button class="refresh-button" type="button" (click)="loadProducts()">Reintentar</button>
+        </div>
+
+        <div class="empty-state" *ngIf="!isLoading && !errorMessage && filteredProducts.length === 0">
+          {{ searchTerm ? 'No hay productos con ese nombre.' : 'Todavía no hay productos en el inventario.' }}
+        </div>
+
+        <div class="product-grid" *ngIf="!isLoading && !errorMessage && filteredProducts.length > 0">
+          <article class="product-card" *ngFor="let product of filteredProducts; trackBy: trackProduct">
+            <div class="product-visual" [style.background-image]="productBackground(product)" role="img" [attr.aria-label]="product.name">
+              <img *ngIf="productImage(product) && !failedImages.has(product.id)" [src]="productImage(product)" [alt]="product.name" loading="lazy" (error)="hideBrokenImage(product.id)">
+              <div class="image-fallback" *ngIf="!productImage(product) || failedImages.has(product.id)" aria-hidden="true">
+                <span>{{ product.name.slice(0, 1) }}</span>
+                <small>AS / {{ product.id.toString().padStart(2, '0') }}</small>
+              </div>
+              <span class="product-id">#{{ product.id.toString().padStart(3, '0') }}</span>
+            </div>
+            <div class="product-info">
+              <div class="product-topline">
+                <span class="stock-indicator" [ngClass]="stockClass(product.stock)">
+                  <span class="stock-dot"></span>{{ stockStatus(product.stock) }}
+                </span>
+                <span class="stock-quantity">{{ product.stock | number }} uds.</span>
+              </div>
+              <h2>{{ product.name }}</h2>
+              <div class="product-bottom">
+                <span class="product-price">{{ formatPrice(product.price) }}</span>
+                <button class="add-button" type="button" (click)="addToCart(product)" [disabled]="product.stock <= (cart.get(product.id) || 0)">
+                  <i class="ri-add-line" aria-hidden="true"></i> Agregar
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+      </section>
+
+      <aside class="cart-panel" aria-label="Venta actual">
+        <div class="cart-heading"><h2>Venta actual</h2><span>{{ cartCount }}</span></div>
+        <div class="cart-empty" *ngIf="cartLines.length === 0">Agrega productos para preparar una venta.</div>
+        <div class="cart-lines" *ngIf="cartLines.length > 0">
+          <div class="cart-line" *ngFor="let line of cartLines; trackBy: trackCartLine">
+            <div class="cart-line-description">
+              <strong>{{ line.product.name }}</strong>
+              <small>{{ formatPrice(line.product.price) }} c/u</small>
+            </div>
+            <div class="quantity-control">
+              <button type="button" (click)="changeQuantity(line.product.id, -1)" [attr.aria-label]="'Quitar ' + line.product.name">−</button>
+              <span>{{ line.quantity }}</span>
+              <button type="button" (click)="changeQuantity(line.product.id, 1)" [disabled]="line.quantity >= line.product.stock" [attr.aria-label]="'Agregar ' + line.product.name">+</button>
+            </div>
+            <strong class="line-subtotal">{{ formatPrice(line.product.price * line.quantity) }}</strong>
+          </div>
+        </div>
+        <div class="cart-total"><span>Total estimado</span><strong>{{ formatPrice(cartTotal) }}</strong></div>
+        <button class="checkout-button" type="button" (click)="createSale()" [disabled]="cartLines.length === 0 || isCreatingSale">
+          {{ isCreatingSale ? 'Registrando...' : 'Registrar venta' }}
+        </button>
+      </aside>
+    </div>
+  </ng-container>
+
+  <ng-template #salesView>
+    <section class="sales-view" aria-label="Historial de ventas">
+      <div class="sales-toolbar">
+        <div><h2>Historial de ventas</h2><p>Ventas activas registradas en el sistema.</p></div>
+        <button class="refresh-button" type="button" (click)="loadSales()" [disabled]="isLoadingSales">
+          <i class="ri-refresh-line" aria-hidden="true"></i> Actualizar
+        </button>
+      </div>
+      <div class="loading-state" *ngIf="isLoadingSales" role="status"><span class="loading-mark"></span>Consultando ventas...</div>
+      <div class="error-state" *ngIf="!isLoadingSales && salesError" role="alert">
+        <div><strong>No se pudo cargar el historial</strong><p>{{ salesError }}</p></div>
+        <button class="refresh-button" type="button" (click)="loadSales()">Reintentar</button>
+      </div>
+      <div class="empty-state" *ngIf="!isLoadingSales && !salesError && sales.length === 0">Todavía no hay ventas registradas.</div>
+      <div class="sales-list" *ngIf="!isLoadingSales && !salesError && sales.length > 0">
+        <article class="sale-card" *ngFor="let sale of sales; trackBy: trackSale">
+          <header class="sale-header">
+            <div><span class="sale-reference">VENTA #{{ sale.id }}</span><time>{{ formatDate(sale.created_at) }}</time></div>
+            <strong>{{ formatPrice(sale.total) }}</strong>
+          </header>
+          <div class="sale-details">
+            <div class="sale-detail" *ngFor="let detail of sale.details">
+              <span>{{ detail.product }}</span><span>× {{ detail.quantity }}</span><strong>{{ formatPrice(detail.subtotal) }}</strong>
+            </div>
+          </div>
+          <button class="delete-button" type="button" (click)="deleteSale(sale.id)">
+            <i class="ri-delete-bin-line" aria-hidden="true"></i> Eliminar venta
+          </button>
+        </article>
+      </div>
+    </section>
+  </ng-template>
+
 </section>
