@@ -1,0 +1,105 @@
+<section class="py-8 sm:py-14" aria-labelledby="sales-title" [attr.aria-busy]="loading">
+  <div class="mb-7 flex flex-wrap items-end justify-between gap-4 sm:mb-10">
+    <div>
+      <p class="mb-2 text-xs font-medium text-subtle">Historial</p>
+      <h1 id="sales-title" class="text-[40px] font-semibold leading-tight tracking-[-0.045em] sm:text-6xl">Ventas.</h1>
+      <p *ngIf="!loading && !error" class="mt-2 text-sm text-subtle" aria-live="polite">{{ sales.length }} {{ sales.length === 1 ? 'venta' : 'ventas' }}</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <button type="button" class="action-button" (click)="loadSales()" [disabled]="loading || deletingId !== undefined">
+        <i class="ri-refresh-line text-base motion-reduce:animate-none" [class.animate-spin]="loading" aria-hidden="true"></i>
+        Actualizar
+      </button>
+      <button *ngIf="!showForm" type="button" class="action-button !border-ink !bg-ink !text-canvas hover:opacity-85" (click)="showForm = true; confirmation = undefined">
+        <i class="ri-add-line text-base" aria-hidden="true"></i>
+        Nueva venta
+      </button>
+    </div>
+  </div>
+
+  <app-sale-form *ngIf="showForm" class="mb-8 block" (created)="saleCreated($event)" (cancelled)="showForm = false"></app-sale-form>
+
+  <p *ngIf="confirmation" class="panel mb-6 flex items-center gap-3 px-5 py-4 text-sm" role="status">
+    <i class="ri-checkbox-circle-line text-xl text-emerald-700 dark:text-emerald-400" aria-hidden="true"></i>
+    Venta #{{ confirmation.sale_id }} registrada por {{ confirmation.total | number:'1.2-2' }}.
+  </p>
+
+  <p *ngIf="deletedId !== undefined" class="panel mb-6 flex items-center gap-3 px-5 py-4 text-sm" role="status">
+    <i class="ri-checkbox-circle-line text-xl text-emerald-700 dark:text-emerald-400" aria-hidden="true"></i>
+    Venta #{{ deletedId }} eliminada. Se repuso el stock.
+  </p>
+
+  <p *ngIf="deleteError" class="panel mb-6 px-5 py-4 text-sm text-rose-700 dark:text-rose-300" role="alert">{{ deleteError }}</p>
+
+  <div *ngIf="loading" class="panel flex min-h-56 flex-col items-center justify-center gap-4 p-6" role="status">
+    <span class="h-7 w-7 animate-spin rounded-full border-2 border-line border-t-accent motion-reduce:animate-none" aria-hidden="true"></span>
+    <p class="text-sm text-subtle">Cargando ventas…</p>
+  </div>
+
+  <div *ngIf="!loading && error" class="panel px-6 py-12 text-center" role="alert">
+    <p class="font-semibold">No se pudieron cargar las ventas.</p>
+    <button type="button" class="action-button mt-5" (click)="loadSales()">Reintentar</button>
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+    <div *ngIf="sales.length === 0" class="panel px-6 py-14 text-center" role="status">
+      <i class="ri-receipt-line mb-3 inline-block text-4xl text-subtle" aria-hidden="true"></i>
+      <h2 class="text-xl font-semibold tracking-tight">Aún no hay ventas.</h2>
+      <a routerLink="/productos" class="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-accent">Ver productos <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
+    </div>
+
+    <ul *ngIf="sales.length > 0" class="grid gap-3 sm:gap-4" aria-label="Historial de ventas">
+      <li *ngFor="let sale of sales; let first = first; trackBy: trackSale">
+        <details class="panel group" [open]="first">
+          <summary class="flex min-h-14 cursor-pointer list-none items-center gap-3 px-4 py-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent sm:gap-4 sm:px-6 [&::-webkit-details-marker]:hidden">
+            <span class="hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted text-xl text-subtle sm:flex"><i class="ri-receipt-line" aria-hidden="true"></i></span>
+            <span class="min-w-0 flex-1">
+              <span class="block text-sm font-semibold sm:text-base">Venta #{{ sale.id }}</span>
+              <time *ngIf="sale.created_at; else missingDate" [attr.datetime]="sale.created_at" class="mt-1 block text-xs text-subtle">{{ sale.created_at | date:'dd/MM/yyyy' }}</time>
+              <ng-template #missingDate><span class="mt-1 block text-xs text-subtle">Sin fecha</span></ng-template>
+            </span>
+            <span class="text-right">
+              <span class="block text-xs text-subtle">Total</span>
+              <span class="block font-semibold tabular-nums sm:text-lg">{{ sale.total | number:'1.2-2' }}</span>
+              <span *ngIf="sale.total_discount > 0" class="block text-xs text-subtle">Descuento −{{ sale.total_discount | number:'1.2-2' }}</span>
+            </span>
+            <i class="ri-arrow-down-s-line shrink-0 text-xl text-subtle transition-transform group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true"></i>
+          </summary>
+          <div class="border-t border-line/60 px-4 py-4 sm:px-6">
+            <p *ngIf="sale.details.length === 0" class="text-sm text-subtle">Sin productos registrados.</p>
+            <table *ngIf="sale.details.length > 0" class="w-full table-fixed text-left text-xs sm:text-sm">
+              <caption class="sr-only">Productos de la venta #{{ sale.id }}</caption>
+              <thead class="text-subtle">
+                <tr>
+                  <th scope="col" class="w-1/2 pb-3 font-medium">Producto</th>
+                  <th scope="col" class="pb-3 text-right font-medium">Cantidad</th>
+                  <th scope="col" class="pb-3 text-right font-medium">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-line/60">
+                <tr *ngFor="let detail of sale.details">
+                  <td class="break-words py-3 pr-2 font-medium">{{ detail.product ?? 'Producto no disponible' }}</td>
+                  <td class="py-3 text-right tabular-nums">{{ detail.quantity | number:'1.0-0' }}</td>
+                  <td class="py-3 text-right tabular-nums">
+                    {{ detail.subtotal_with_discount | number:'1.2-2' }}
+                    <span *ngIf="detail.discount_percent > 0" class="mt-1 block text-[11px] text-subtle">−{{ detail.discount_percent | number:'1.0-2' }} %</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="mt-4 flex flex-wrap items-center justify-end gap-2 border-t border-line/60 pt-4">
+              <ng-container *ngIf="deleteCandidate === sale.id; else deleteAction">
+                <p class="mr-auto text-sm text-subtle">¿Eliminar la venta #{{ sale.id }} y reponer sus unidades?</p>
+                <button type="button" class="action-button" [disabled]="deletingId !== undefined" (click)="deleteCandidate = undefined">Cancelar</button>
+                <button type="button" class="action-button !border-rose-600 !bg-rose-700 !text-white hover:opacity-85" [disabled]="deletingId !== undefined" (click)="deleteSale(sale.id)">{{ deletingId === sale.id ? 'Eliminando…' : 'Confirmar eliminación' }}</button>
+              </ng-container>
+              <ng-template #deleteAction>
+                <button type="button" class="action-button !text-rose-700 dark:!text-rose-300" [disabled]="deletingId !== undefined" (click)="requestDeletion(sale.id)"><i class="ri-delete-bin-line" aria-hidden="true"></i> Eliminar venta</button>
+              </ng-template>
+            </div>
+          </div>
+        </details>
+      </li>
+    </ul>
+  </ng-container>
+</section>

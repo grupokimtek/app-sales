@@ -1,0 +1,81 @@
+<div class="home-page" [class.animations-paused]="paused">
+  <section class="grid gap-4 pb-6 pt-6 lg:grid-cols-[1.65fr_1fr] lg:gap-5 lg:pt-8" aria-labelledby="home-title">
+    <div class="hero-panel relative min-h-[380px] overflow-hidden rounded-[30px] border border-line/50 bg-surface sm:min-h-[450px]">
+      <div class="hero-copy relative z-10 w-fit p-6 sm:p-9">
+        <p class="mb-4 text-xs font-medium text-subtle">Tu mundo, mejor equipado.</p>
+        <h1 id="home-title" class="text-6xl font-semibold leading-[0.95] tracking-[-0.065em] sm:text-7xl">Hazlo.<br><span class="text-subtle">Tuyo.</span></h1>
+        <a routerLink="/productos" class="mt-6 inline-flex min-h-12 items-center justify-center gap-4 rounded-full bg-ink px-5 py-3 text-sm font-medium text-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">Explorar <i class="ri-arrow-right-up-line text-lg" aria-hidden="true"></i></a>
+      </div>
+      <div class="hero-scene absolute -bottom-9 -right-9 aspect-square w-[85%] max-w-[490px] sm:-bottom-10 sm:-right-9 sm:w-[78%]" aria-hidden="true" (pointermove)="tiltScene($event)" (pointerleave)="resetScene($event)">
+        <div class="scene-depth absolute inset-0 transition-transform duration-300 motion-reduce:transform-none [transform:perspective(900px)_rotateX(var(--tilt-x,0deg))_rotateY(var(--tilt-y,0deg))]">
+          <div class="scene-halo absolute inset-0 rounded-full"></div>
+          <div class="orbit absolute inset-[8%] rounded-full border border-line/50"><span class="absolute left-[14%] top-[14%] h-[7px] w-[7px] rounded-full bg-accent"></span></div>
+          <div class="orbit orbit-two absolute inset-[18%] rounded-full border border-dashed border-line/50"></div>
+          <div class="device">
+            <div class="device-screen"><div class="screen-art"><div class="screen-arc animate-arc-turn"></div><div class="absolute inset-y-0 left-0 w-1/2 animate-sheen bg-gradient-to-r from-transparent via-white/15 to-transparent"></div></div></div>
+            <div class="device-base"></div>
+          </div>
+          <span *ngFor="let spark of [0,1,2,3,4,5]" class="absolute h-1 w-1 animate-twinkle rounded-full bg-accent" [style.left.%]="(spark * 23 + 7) % 85" [style.top.%]="(spark * 37 + 9) % 80" [style.animation-delay.s]="spark * -0.6"></span>
+          <span class="absolute left-[5%] top-[44%] flex h-12 w-12 animate-float-soft items-center justify-center rounded-2xl border border-line/70 bg-surface/90 text-2xl shadow-lg backdrop-blur-lg"><i class="ri-headphone-line"></i></span>
+          <span class="absolute right-[13%] top-[13%] flex h-12 w-12 animate-float-soft items-center justify-center rounded-2xl border border-line/70 bg-surface/90 text-2xl shadow-lg backdrop-blur-lg [animation-delay:-2.5s]"><i class="ri-keyboard-line"></i></span>
+          <span class="absolute bottom-[18%] right-[20%] flex h-12 w-12 animate-float-soft items-center justify-center rounded-2xl border border-line/70 bg-surface/90 text-2xl shadow-lg backdrop-blur-lg [animation-delay:-4.5s]"><i class="ri-mouse-line"></i></span>
+        </div>
+      </div>
+      <button type="button" class="absolute right-4 top-4 z-10 inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-full border border-line/60 bg-surface/70 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent" (click)="paused = !paused" [attr.aria-pressed]="paused" [attr.aria-label]="paused ? 'Reanudar animaciones' : 'Pausar animaciones'" [title]="paused ? 'Reanudar animaciones' : 'Pausar animaciones'"><i [class]="paused ? 'ri-play-line' : 'ri-pause-line'" aria-hidden="true"></i></button>
+      <a href="#seleccion" aria-label="Ver selección de productos" class="absolute bottom-5 left-6 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-line bg-surface/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"><i class="ri-arrow-down-line text-lg" aria-hidden="true"></i></a>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 lg:grid-cols-1 lg:gap-5">
+      <ng-container *ngIf="!loading && products.length > 0">
+        <a *ngFor="let product of products | slice:0:2; let index = index" routerLink="/productos" class="group relative flex min-w-0 flex-col justify-between overflow-hidden rounded-[26px] border border-line/40 bg-surface p-4 transition-colors hover:border-accent/40 sm:p-6 lg:flex-row lg:items-center" [attr.aria-label]="'Ver ' + product.name">
+          <div class="relative z-10 max-w-[190px]">
+            <p class="mb-2 text-[10px] font-medium uppercase tracking-widest text-subtle">{{ index === 0 ? 'Para crear' : 'Para tu día' }}</p>
+            <h2 class="text-sm font-semibold leading-tight tracking-tight sm:text-xl">{{ product.name }}</h2>
+            <p class="mt-3 text-sm font-medium tabular-nums sm:text-lg">{{ product.price | number:'1.2-2' }}</p>
+          </div>
+          <div class="mt-3 flex aspect-square w-full max-w-32 items-center justify-center self-end overflow-hidden rounded-2xl bg-muted/60 text-6xl text-subtle/70 lg:mt-0 lg:w-[44%] lg:shrink-0">
+            <img *ngIf="product.image && !failedImages.has(product.id); else spotlightPlaceholder" [src]="product.image" [alt]="product.name" width="200" height="200" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 motion-reduce:transform-none" (error)="markImageUnavailable(product.id)">
+            <ng-template #spotlightPlaceholder><i [class]="productIcon(product)" aria-hidden="true"></i></ng-template>
+          </div>
+          <span class="absolute bottom-3 left-4 flex h-8 w-8 items-center justify-center rounded-full bg-muted text-ink lg:bottom-4 lg:left-auto lg:right-4" aria-hidden="true"><i class="ri-arrow-right-up-line text-base"></i></span>
+        </a>
+      </ng-container>
+      <div *ngIf="loading || products.length === 0" class="col-span-full grid grid-cols-2 gap-4 lg:grid-cols-1"><div *ngFor="let item of [1,2]" class="min-h-44 rounded-[26px] bg-muted" [class.animate-pulse]="loading"></div></div>
+    </div>
+  </section>
+
+  <nav class="mb-8 flex gap-2 overflow-x-auto pb-2 sm:mb-10 sm:gap-3" aria-label="Filtrar productos por categoría">
+    <button *ngFor="let category of categories" type="button" class="inline-flex min-h-12 shrink-0 touch-manipulation items-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:px-5 sm:text-sm" [ngClass]="activeCategory === category.name ? 'border-ink bg-ink text-canvas' : 'border-line/50 bg-surface text-subtle hover:border-accent/40'" [attr.aria-pressed]="activeCategory === category.name" (click)="activeCategory = category.name"><i [class]="category.icon + ' text-lg'" aria-hidden="true"></i>{{ category.name }}<span class="text-[10px] opacity-60" *ngIf="!loading">{{ categoryCount(category.name) }}</span></button>
+  </nav>
+
+  <section id="seleccion" class="reveal scroll-mt-20 pb-10 sm:pb-14" aria-labelledby="selection-title" [attr.aria-busy]="loading">
+    <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+      <h2 id="selection-title" class="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">Lo que va contigo.</h2>
+      <a routerLink="/productos" class="inline-flex min-h-11 items-center gap-2 text-xs font-medium text-accent sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">Ver todo <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
+    </div>
+    <div *ngIf="loading" class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5" role="status"><div *ngFor="let item of [1,2,3,4,5,6]" class="h-64 animate-pulse rounded-[24px] bg-muted motion-reduce:animate-none"></div><span class="sr-only">Cargando productos</span></div>
+    <div *ngIf="!loading && (loadError || selectedProducts.length === 0)" class="rounded-[26px] border border-line/50 bg-surface p-8 text-center" role="status"><p class="text-sm text-subtle">{{ loadError ? 'No pudimos cargar los productos.' : 'No hay productos en esta categoría.' }}</p><a routerLink="/productos" class="mt-3 inline-flex min-h-11 items-center gap-2 text-sm text-accent">Ver catálogo <i class="ri-arrow-right-line" aria-hidden="true"></i></a></div>
+    <ul *ngIf="!loading && selectedProducts.length > 0" class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5" aria-label="Selección de productos" aria-live="polite">
+      <li *ngFor="let product of selectedProducts; trackBy: trackProduct" class="min-w-0">
+        <a routerLink="/productos" class="group flex h-full flex-col overflow-hidden rounded-[24px] border border-line/40 bg-surface p-3 transition duration-300 hover:-translate-y-1 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:rounded-[28px] sm:p-5 motion-reduce:transform-none" [attr.aria-label]="'Explorar ' + product.name + ' en el catálogo'">
+          <div class="product-visual relative mb-4 flex aspect-square items-center justify-center overflow-hidden rounded-2xl bg-muted/60 sm:aspect-[4/3]">
+            <span aria-hidden="true" class="pointer-events-none absolute inset-y-0 left-0 z-10 w-1/3 animate-sheen bg-gradient-to-r from-transparent via-white/15 to-transparent"></span>
+            <img *ngIf="product.image && !failedImages.has(product.id); else productPlaceholder" [src]="product.image" [alt]="product.name" width="400" height="300" loading="lazy" decoding="async" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 motion-reduce:transform-none" (error)="markImageUnavailable(product.id)">
+            <ng-template #productPlaceholder><span role="img" [attr.aria-label]="'Sin imagen para ' + product.name" class="animate-float-soft text-5xl text-subtle/70 sm:text-7xl"><i [class]="productIcon(product)" aria-hidden="true"></i></span></ng-template>
+            <span class="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full border border-line/50 bg-surface/90 text-sm backdrop-blur-sm sm:h-9 sm:w-9" aria-hidden="true"><i class="ri-arrow-right-up-line"></i></span>
+          </div>
+          <h3 class="text-xs font-semibold leading-5 tracking-tight sm:text-base sm:leading-6">{{ product.name }}</h3>
+          <span class="mb-3 mt-1 inline-flex items-center gap-1 text-[10px] text-subtle sm:text-xs"><span class="h-1 w-1 rounded-full" [ngClass]="product.stock > 0 ? 'bg-emerald-600 dark:bg-emerald-400' : 'bg-subtle'" aria-hidden="true"></span>{{ product.stock > 0 ? 'Disponible' : 'Sin stock' }}</span>
+          <p class="mt-auto text-base font-semibold tracking-tight tabular-nums sm:text-xl">{{ product.price | number:'1.2-2' }}</p>
+        </a>
+      </li>
+    </ul>
+  </section>
+
+  <section class="reveal relative mb-8 flex flex-wrap items-center justify-between gap-5 overflow-hidden rounded-[26px] bg-ink p-6 text-canvas sm:p-8" aria-labelledby="possibilities-title">
+    <div class="pointer-events-none absolute -right-10 -top-20 h-60 w-60 animate-slow-spin rounded-[38%] border-[30px] border-canvas/10" aria-hidden="true"></div>
+    <div class="relative"><h2 id="possibilities-title" class="text-3xl font-semibold tracking-[-0.045em] sm:text-4xl">Tu siguiente favorito.</h2><span *ngIf="products.length > 0" class="mt-2 block text-xs text-canvas/60">{{ products.length }} productos. Muchas posibilidades.</span></div>
+    <a routerLink="/productos" class="relative inline-flex min-h-12 items-center gap-4 rounded-full bg-canvas px-5 py-3 text-sm font-medium text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">Ver catálogo <i class="ri-arrow-right-up-line text-lg" aria-hidden="true"></i></a>
+  </section>
+  <footer class="flex items-center justify-between gap-4 border-t border-line/60 pb-6 pt-4 text-xs text-subtle"><span class="font-semibold text-ink">Ventas.</span><a routerLink="/productos" class="inline-flex min-h-11 items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">Catálogo <i class="ri-arrow-right-up-line" aria-hidden="true"></i></a></footer>
+</div>

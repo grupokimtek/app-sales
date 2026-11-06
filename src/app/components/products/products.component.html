@@ -1,0 +1,91 @@
+<section class="pb-10 pt-8 sm:pb-24 sm:pt-20" aria-labelledby="products-title" [attr.aria-busy]="loading">
+  <div class="mb-8 max-w-3xl sm:mb-16">
+    <p class="mb-3 text-xs font-medium text-subtle sm:mb-5 sm:text-sm">Tu catálogo. Más simple.</p>
+    <h1 id="products-title" class="text-[40px] font-semibold leading-tight tracking-[-0.045em] sm:text-7xl">Productos.</h1>
+    <p class="mt-3 text-xl font-semibold leading-tight tracking-[-0.025em] text-subtle sm:mt-4 sm:text-4xl">Todo lo que necesitas.<br>De un vistazo.</p>
+  </div>
+
+  <div class="mb-4 flex items-center justify-between gap-3 sm:mb-6 sm:gap-4">
+    <div class="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-3">
+      <h2 class="text-base font-semibold tracking-tight sm:text-lg">El catálogo completo.</h2>
+      <span *ngIf="!loading && !error" class="text-xs tabular-nums text-subtle sm:text-sm" aria-live="polite">{{ products.length }} productos</span>
+    </div>
+    <button type="button" class="action-button shrink-0" (click)="loadProducts()" [disabled]="loading">
+      <i class="ri-refresh-line text-base motion-reduce:animate-none" [class.animate-spin]="loading" aria-hidden="true"></i>
+      Actualizar
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="panel flex min-h-80 flex-col items-center justify-center gap-4 px-6 py-20 text-center" role="status">
+    <span class="h-7 w-7 animate-spin rounded-full border-2 border-line border-t-accent motion-reduce:animate-none" aria-hidden="true"></span>
+    <p class="text-sm text-subtle">Preparando tu catálogo…</p>
+  </div>
+
+  <div *ngIf="!loading && error" class="panel flex flex-col items-center gap-5 px-6 py-16 text-center" role="alert">
+    <i class="ri-cloud-off-line text-4xl text-subtle" aria-hidden="true"></i>
+    <div>
+      <h3 class="text-xl font-semibold tracking-tight">No pudimos cargar los productos.</h3>
+      <p class="mt-2 max-w-md text-sm leading-6 text-subtle">{{ error }}</p>
+    </div>
+    <button type="button" class="action-button" (click)="loadProducts()">Volver a intentar</button>
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+    <div *ngIf="products.length === 0" class="panel flex min-h-80 flex-col items-center justify-center px-6 py-20 text-center" role="status">
+      <i class="ri-box-3-line mb-5 text-5xl text-subtle" aria-hidden="true"></i>
+      <h3 class="text-2xl font-semibold tracking-tight">Un espacio para tus productos.</h3>
+      <p class="mt-3 max-w-sm text-sm leading-6 text-subtle">Tu catálogo aparecerá aquí cuando haya productos disponibles.</p>
+    </div>
+
+    <ul *ngIf="products.length > 0" class="grid list-none grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6" aria-label="Catálogo de productos">
+      <li *ngFor="let product of products; trackBy: trackProduct" class="min-w-0">
+        <article class="grid h-full grid-cols-[88px_minmax(0,1fr)] gap-x-4 overflow-hidden rounded-[22px] border border-line/30 bg-surface p-4 shadow-[0_2px_12px_rgba(0,0,0,0.035)] transition duration-300 sm:flex sm:flex-col sm:rounded-[28px] sm:p-0 sm:hover:-translate-y-1 sm:hover:shadow-[0_12px_36px_rgba(0,0,0,0.08)] motion-reduce:transform-none motion-reduce:transition-none" [attr.aria-labelledby]="'product-' + product.id">
+          <div class="sm:px-6 sm:pt-6">
+            <p class="mb-4 hidden text-[11px] font-semibold uppercase tracking-widest text-subtle sm:block">Producto / {{ product.id | number:'2.0-0' }}</p>
+            <div class="flex aspect-square items-center justify-center overflow-hidden rounded-2xl bg-muted/60 sm:aspect-[4/3] sm:rounded-[20px]">
+              <img *ngIf="product.image && !failedImages.has(product.id); else imagePlaceholder" [src]="product.image" [alt]="product.name" width="400" height="300" loading="lazy" decoding="async" class="h-full w-full object-cover" (error)="markImageUnavailable(product.id)">
+              <ng-template #imagePlaceholder>
+                <div role="img" [attr.aria-label]="'Sin imagen para ' + product.name" class="flex flex-col items-center gap-3 text-subtle">
+                  <i class="ri-box-3-line text-4xl opacity-50 sm:text-6xl" aria-hidden="true"></i>
+                  <span class="hidden text-xs sm:block">Imagen no disponible</span>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+          <div class="contents sm:flex sm:flex-1 sm:flex-col sm:px-6 sm:pb-6 sm:pt-6">
+            <h3 [id]="'product-' + product.id" class="self-center break-words text-base font-semibold leading-6 tracking-tight sm:min-h-14 sm:self-auto sm:text-xl sm:leading-7">{{ product.name }}<span class="mt-1 block text-xs font-normal tracking-normal text-subtle sm:hidden">ID #{{ product.id }}</span></h3>
+            <dl class="col-span-2 mb-4 mt-4 flex min-w-0 items-end justify-between gap-3 sm:mb-6 sm:mt-5 sm:gap-4">
+              <div>
+                <dt class="mb-1 text-xs text-subtle">Precio</dt>
+                <dd class="text-xl font-semibold tracking-tight tabular-nums sm:text-2xl">{{ product.price | number:'1.2-2' }}</dd>
+              </div>
+              <div class="text-right">
+                <dt class="mb-2 text-xs text-subtle">Stock disponible</dt>
+                <dd class="flex items-center justify-end gap-1.5 text-xs font-medium tabular-nums" [ngClass]="product.stock > 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-subtle'">
+                  <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-current" aria-hidden="true"></span>
+                  {{ product.stock > 0 ? (product.stock | number:'1.0-0') + ' unidades' : 'Sin stock' }}
+                </dd>
+              </div>
+            </dl>
+            <dl class="col-span-2 mt-auto grid grid-cols-2 gap-3 border-t border-line/60 pt-3 text-xs leading-5 text-subtle sm:pt-4 sm:text-[11px]">
+              <div>
+                <dt>Creado</dt>
+                <dd>
+                  <time *ngIf="product.created_at; else noCreatedDate" [attr.datetime]="product.created_at" class="tabular-nums">{{ product.created_at | date:'dd/MM/yyyy HH:mm' }}</time>
+                  <ng-template #noCreatedDate>Sin registro</ng-template>
+                </dd>
+              </div>
+              <div class="text-right">
+                <dt>Actualizado</dt>
+                <dd>
+                  <time *ngIf="product.updated_at; else noUpdatedDate" [attr.datetime]="product.updated_at" class="tabular-nums">{{ product.updated_at | date:'dd/MM/yyyy HH:mm' }}</time>
+                  <ng-template #noUpdatedDate>Sin registro</ng-template>
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </article>
+      </li>
+    </ul>
+  </ng-container>
+</section>

@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --color-canvas: 245 245 247;
+    --color-surface: 255 255 255;
+    --color-muted: 245 245 247;
+    --color-ink: 29 29 31;
+    --color-subtle: 110 110 115;
+    --color-line: 210 210 215;
+    --color-accent: 0 102 204;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --color-canvas: 0 0 0;
+      --color-surface: 28 28 30;
+      --color-muted: 44 44 46;
+      --color-ink: 245 245 247;
+      --color-subtle: 161 161 166;
+      --color-line: 56 56 58;
+      --color-accent: 41 151 255;
+    }
+  }
+
+  body {
+    @apply m-0 min-h-screen bg-canvas font-sans text-ink antialiased;
+  }
+
+  app-root {
+    @apply block min-h-screen;
+  }
+
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  ::selection {
+    @apply bg-accent/20;
+  }
+}
+
+@layer components {
+  .action-button {
+    @apply inline-flex min-h-11 touch-manipulation items-center justify-center gap-2 rounded-full border border-line/60 bg-surface px-4 py-2 text-xs font-medium text-ink transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas disabled:cursor-wait disabled:opacity-50;
+  }
+
+  .panel {
+    @apply overflow-hidden rounded-[28px] border border-line/30 bg-surface;
+  }
+}
