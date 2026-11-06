@@ -1,0 +1,46 @@
+/* You can add global styles to this file, and also import other style files */
+@import "bootstrap/dist/css/bootstrap.min.css";
+@import "bootstrap-icons/font/bootstrap-icons.css";
+
+/* Configuración general */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+body {
+    font-family: "Source Sans 3", Arial, sans-serif;
+    background-color: #f4f6f9;
+    color: #343a40;
+    font-size: 15px;
+}
+
+/* Encabezados */
+h1, h2, h3, h4, h5 {
+    font-weight: 600;
+}
+
+/* Botones */
+.btn {
+    border-radius: 4px;
+}
+
+/* Tablas */
+.table {
+    background-color: #ffffff;
+}
+
+/* Contenedores */
+.container {
+    max-width: 100%;
+}
+
+/* Enlaces */
+a {
+    text-decoration: none;
+}

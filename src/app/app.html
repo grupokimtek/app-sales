@@ -1,0 +1,135 @@
+<!-- <app-products></app-products> -->
+
+
+
+<div class="admin-wrapper"
+     [class.sidebar-collapsed]="sidebarCollapsed">
+
+  <!-- SIDEBAR -->
+  <aside class="main-sidebar">
+
+    <!-- LOGO -->
+    <a href="#" class="brand-link">
+      <i class="bi bi-shop-window"></i>
+      <span class="brand-text">MERCATECH BOLIVIA</span>
+    </a>
+
+    <!-- USUARIO -->
+    <div class="sidebar-user">
+      <i class="bi bi-person-circle"></i>
+
+      <div>
+        <strong>Administrador</strong>
+        <small>Panel de control</small>
+      </div>
+    </div>
+
+    <!-- MENU -->
+    <nav class="sidebar-menu">
+
+      <div class="menu-title">
+        MENÚ PRINCIPAL
+      </div>
+
+      <a href="#" class="menu-item active">
+        <i class="bi bi-speedometer2"></i>
+        <span>Listado de Productos</span>
+      </a>
+
+      <a href="#" class="menu-item">
+        <i class="bi bi-box-seam"></i>
+        <span>Productos</span>
+      </a>
+
+      <a href="#" class="menu-item">
+        <i class="bi bi-cart3"></i>
+        <span>Ventas</span>
+      </a>
+
+      <a href="#" class="menu-item">
+        <i class="bi bi-bar-chart-line"></i>
+        <span>Reportes</span>
+      </a>
+
+      <div class="menu-title">
+        CONFIGURACIÓN
+      </div>
+
+      <a href="#" class="menu-item">
+        <i class="bi bi-gear"></i>
+        <span>Configuración</span>
+      </a>
+
+    </nav>
+
+    <div class="sidebar-footer">
+      Sistema de ventas v1.0
+    </div>
+
+  </aside>
+
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="main-content">
+
+    <!-- NAVBAR -->
+    <header class="main-navbar">
+
+      <button class="btn-menu"
+              (click)="toggleSidebar()"
+              title="Contraer menú">
+
+        <i class="bi bi-list"></i>
+
+      </button>
+
+      <div class="navbar-right">
+
+        <button class="navbar-icon" title="Notificaciones">
+          <i class="bi bi-bell"></i>
+          <span class="notification-dot"></span>
+        </button>
+
+        <div class="navbar-user">
+          <i class="bi bi-person-circle"></i>
+          <span>Administrador</span>
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <!-- CONTENIDO -->
+    <main class="content-wrapper">
+
+      <div class="content-header">
+        <div>
+          <h1>Dashboard</h1>
+          <p>Panel de administración del sistema de ventas</p>
+        </div>
+
+        <div class="breadcrumb">
+          Inicio / Dashboard
+        </div>
+      </div>
+
+      <!-- PRODUCTOS DE LARAVEL -->
+      <section class="content-body">
+
+        <app-products></app-products>
+
+      </section>
+
+    </main>
+
+
+    <!-- FOOTER -->
+    <footer class="main-footer">
+      <strong>MERCATECH BOLIVIA</strong> - Sistema de gestión de ventas 2026
+      <span>© 2026</span>
+    </footer>
+
+  </div>
+
+</div>
